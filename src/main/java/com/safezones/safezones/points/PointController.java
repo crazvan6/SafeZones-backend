@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,46 +47,51 @@ public class PointController {
     public @ResponseBody Iterable<Point> getAllPoints() {
         Iterable<Point> allPoints = pointRepository.findAll();
         LocalDateTime currentTime = LocalDateTime.now();
+
+        List<Point> filteredPoints = new ArrayList<>();
+
         for (Point point : allPoints) {
+
+            LocalDateTime placementTime = point.getTimestamp();
+
             if (point.getCategory().equals("Hard")) {
-                // Verific dacă au trecut 24 de ore de la plasarea punctului
-                LocalDateTime placementTime = point.getTimestamp();
-                if (placementTime.plusHours(24).isBefore(currentTime)) {
-                    pointRepository.delete(point);
+                if (placementTime.plusHours(24).isAfter(currentTime)) {
+                    filteredPoints.add(point);
                 }
             } else if (point.getCategory().equals("Medium")) {
-                // Verificaț dacă au trecut 12 ore de la plasarea punctului
-                LocalDateTime placementTime = point.getTimestamp();
-                if (placementTime.plusHours(12).isBefore(currentTime)) {
-                    // Ștergeți punctul
-                    pointRepository.delete(point);
+                if (placementTime.plusHours(12).isAfter(currentTime)) {
+                    filteredPoints.add(point);
                 }
+            } else {
+                filteredPoints.add(point);
             }
         }
 
-        // Returnați toate punctele după ce au fost eliminate cele vechi
-        return pointRepository.findAll();
+        return filteredPoints;
     }
+
 
 
     @GetMapping(path="/{id}")
     public @ResponseBody List<Point> getPointsByUserId(@PathVariable String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
         return pointRepository.findByUserId(id);
     }
 
     @PostMapping(path="/incrementVotes/{id}/{userId}")
     @Transactional
     public ResponseEntity<String> incrementVotes(@PathVariable int id, @PathVariable String userId) {
+
         Optional<Point> pointOptional = pointRepository.findById(id);
+
         Optional<User> userOptional = userRepository.findById(userId);
 
         if (pointOptional.isPresent() && userOptional.isPresent()) {
             Point point = pointOptional.get();
             User user = userOptional.get();
 
-            // Check if the user has already liked the point
             if (!point.getLikedByUsers().contains(user)) {
                 point.getLikedByUsers().add(user);
                 point.setVotes(point.getVotes() + 1);
@@ -102,7 +108,9 @@ public class PointController {
 
     @GetMapping(path = "/votes/{id}")
     public ResponseEntity<?> getVotesById(@PathVariable int id) {
+
         Optional<Point> pointOptional = pointRepository.findById(id);
+
         if (pointOptional.isPresent()) {
             Point point = pointOptional.get();
             return ResponseEntity.ok(point.getVotes());

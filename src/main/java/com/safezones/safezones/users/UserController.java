@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping(path="/add") // Map ONLY POST Requests
+    @PostMapping(path="/add")
     public @ResponseBody String addNewUser (@RequestParam(name="name") String name,
                                             @RequestParam(name="email") String email,
                                             @RequestParam(name="id") String id) {
@@ -33,9 +33,6 @@ public class UserController {
         user.setLevel(1);
         user.setRewardPoints(0);
         user.setRegisterDate(new Date());
-        //System.out.println(name);
-        //System.out.println(email);
-        //System.out.println(id);
         userRepository.save(user);
         return "Saved";
     }
@@ -48,7 +45,9 @@ public class UserController {
 
     @GetMapping(path="/{id}")
     public ResponseEntity<String> getUserById(@PathVariable String id) {
+
         Optional<User> userOptional = userRepository.findById(id);
+
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(userOptional.get().getUsername());
         } else {
@@ -58,7 +57,9 @@ public class UserController {
 
     @GetMapping(path="/level/{id}")
     public ResponseEntity<?> getUserLevel(@PathVariable String id) {
+
         Optional<User> userOptional = userRepository.findById(id);
+
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(userOptional.get().getLevel());
         } else {
@@ -68,7 +69,9 @@ public class UserController {
 
     @GetMapping(path="/points/{id}")
     public ResponseEntity<?> getUserPoints(@PathVariable String id) {
+
         Optional<User> userOptional = userRepository.findById(id);
+
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(userOptional.get().getRewardPoints());
         } else {
@@ -82,7 +85,9 @@ public class UserController {
     @PutMapping(path="/incrementPoints/{id}")
     @Transactional
     public ResponseEntity<String> incrementRewardPoints(@PathVariable String id) {
+
         Optional<User> userOptional = userRepository.findById(id);
+
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setRewardPoints(user.getRewardPoints() + 1);
@@ -113,7 +118,9 @@ public class UserController {
                 }
             }
             userRepository.save(user);
+
             return ResponseEntity.ok("Points incremented by 1");
+
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
