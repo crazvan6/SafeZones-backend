@@ -15,6 +15,15 @@ public class User {
     private int rewardPoints;
     private int level;
     private Date registerDate;
+    private String profileImage;
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 
     @ManyToMany(mappedBy = "likedByUsers")
     @JsonBackReference

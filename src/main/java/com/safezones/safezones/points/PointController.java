@@ -43,7 +43,7 @@ public class PointController {
         return "Point added successfully";
     }
 
-    @GetMapping(path="/all")
+    @GetMapping(path = "/all")
     public @ResponseBody Iterable<Point> getAllPoints() {
         Iterable<Point> allPoints = pointRepository.findAll();
         LocalDateTime currentTime = LocalDateTime.now();
@@ -71,8 +71,7 @@ public class PointController {
     }
 
 
-
-    @GetMapping(path="/{id}")
+    @GetMapping(path = "/{id}")
     public @ResponseBody List<Point> getPointsByUserId(@PathVariable String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -80,7 +79,7 @@ public class PointController {
         return pointRepository.findByUserId(id);
     }
 
-    @PostMapping(path="/incrementVotes/{id}/{userId}")
+    @PostMapping(path = "/incrementVotes/{id}/{userId}")
     @Transactional
     public ResponseEntity<String> incrementVotes(@PathVariable int id, @PathVariable String userId) {
 
@@ -119,4 +118,19 @@ public class PointController {
         }
     }
 
+    @GetMapping(path = "/liked-by/{id}/{userId}")
+    public ResponseEntity<Boolean> pointLikedByUser(@PathVariable int id, @PathVariable String userId) {
+        Optional<Point> pointOptional = pointRepository.findById(id);
+
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (pointOptional.isPresent() && userOptional.isPresent()) {
+            Point point = pointOptional.get();
+            User user = userOptional.get();
+
+            return ResponseEntity.ok(point.getLikedByUsers().contains(user));
+        }
+        return (ResponseEntity<Boolean>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+    }
 }
+
