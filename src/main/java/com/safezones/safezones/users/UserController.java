@@ -67,6 +67,28 @@ public class UserController {
         }
     }
 
+    @PostMapping(path = "/update-profile-image/{userId}")
+    public void updateProfileImage(@PathVariable String userId, @RequestParam(name="imagePath") String path) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setProfileImage(path);
+            userRepository.save(user);
+        }
+    }
+    @GetMapping(path = "/get-profile-image/{userId}")
+    public ResponseEntity<String> getProfileImage(@PathVariable String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+
+            return ResponseEntity.ok(userOptional.get().getProfileImage());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @GetMapping(path="/points/{id}")
     public ResponseEntity<?> getUserPoints(@PathVariable String id) {
 
@@ -78,9 +100,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-
-
-
 
     @PutMapping(path="/incrementPoints/{id}")
     @Transactional
