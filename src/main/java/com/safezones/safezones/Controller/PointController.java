@@ -1,8 +1,10 @@
-package com.safezones.safezones.points;
+package com.safezones.safezones.Controller;
 
-import com.safezones.safezones.PointRepository;
-import com.safezones.safezones.UserRepository;
-import com.safezones.safezones.users.User;
+import com.safezones.safezones.Model.Point;
+import com.safezones.safezones.Repository.PointRepository;
+import com.safezones.safezones.Repository.UserRepository;
+import com.safezones.safezones.Dto.PointRequest;
+import com.safezones.safezones.Model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,9 +28,6 @@ public class PointController {
 
     @PostMapping(path = "/add")
     public @ResponseBody String addNewPoint(@RequestBody PointRequest pointRequest) {
-        System.out.println(pointRequest.getCategory());
-        User user = userRepository.findById(pointRequest.getUserId().toString())
-                .orElseThrow(() -> new RuntimeException("User not found"));
         Point point = new Point();
         point.setLatitude(pointRequest.getLatitude());
         point.setLongitude(pointRequest.getLongitude());
